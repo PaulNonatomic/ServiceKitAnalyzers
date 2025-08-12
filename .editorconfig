@@ -1,0 +1,3 @@
+# Roslyn packaging rules
+dotnet_diagnostic.RS1032.severity = warning
+dotnet_diagnostic.RS2007.severity = warning

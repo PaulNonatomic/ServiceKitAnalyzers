@@ -10,7 +10,7 @@ namespace ServiceKit.Analyzers
 	{
 		public const string DiagnosticId = "SK001";
 
-		private static readonly DiagnosticDescriptor Rule = new(
+		private static readonly DiagnosticDescriptor _rule = new(
 			id: DiagnosticId,
 			title: "Injected member should be an interface",
 			messageFormat: "Member '{0}' with [InjectService] should be an interface type",
@@ -20,12 +20,13 @@ namespace ServiceKit.Analyzers
 			description: "ServiceKit recommends injecting interfaces to keep services loosely coupled and AOT-friendly."
 		);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(_rule);
 
 		public override void Initialize(AnalysisContext context)
 		{
 			context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
 			context.EnableConcurrentExecution();
+
 			context.RegisterSymbolAction(AnalyzeField, SymbolKind.Field);
 			context.RegisterSymbolAction(AnalyzeProperty, SymbolKind.Property);
 		}
@@ -33,26 +34,63 @@ namespace ServiceKit.Analyzers
 		private static void AnalyzeField(SymbolAnalysisContext ctx)
 		{
 			var field = (IFieldSymbol)ctx.Symbol;
-			if (!HasInjectService(field)) return;
+			if (!HasInjectService(field))
+			{
+				return;
+			}
 
+			// Arrays, generics, classes ⇒ warn. Only pure interfaces are allowed.
 			if (field.Type?.TypeKind != TypeKind.Interface)
 			{
-				ctx.ReportDiagnostic(Diagnostic.Create(Rule, field.Locations[0], field.Name));
+				var location = field.Locations.FirstOrDefault();
+				if (location != null)
+				{
+					ctx.ReportDiagnostic(Diagnostic.Create(_rule, location, field.Name));
+				}
 			}
 		}
 
 		private static void AnalyzeProperty(SymbolAnalysisContext ctx)
 		{
 			var prop = (IPropertySymbol)ctx.Symbol;
-			if (!HasInjectService(prop)) return;
+			if (!HasInjectService(prop))
+			{
+				return;
+			}
 
 			if (prop.Type?.TypeKind != TypeKind.Interface)
 			{
-				ctx.ReportDiagnostic(Diagnostic.Create(Rule, prop.Locations[0], prop.Name));
+				var location = prop.Locations.FirstOrDefault();
+				if (location != null)
+				{
+					ctx.ReportDiagnostic(Diagnostic.Create(_rule, location, prop.Name));
+				}
 			}
 		}
 
-		private static bool HasInjectService(ISymbol symbol) =>
-			symbol.GetAttributes().Any(a => a.AttributeClass?.Name == "InjectServiceAttribute");
+		private static bool HasInjectService(ISymbol symbol)
+		{
+			foreach (var a in symbol.GetAttributes())
+			{
+				var attr = a.AttributeClass;
+				if (attr == null)
+				{
+					continue;
+				}
+
+				// Be resilient to namespace changes / aliases
+				if (attr.Name == "InjectServiceAttribute")
+				{
+					return true;
+				}
+
+				var full = attr.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+				if (full.EndsWith(".InjectServiceAttribute"))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
 	}
 }
