@@ -54,8 +54,11 @@ namespace ServiceKit.Analyzers
 						var newAccess = executeAccess.WithExpression(leftSansCancel)
 							.WithName(SyntaxFactory.IdentifierName("ExecuteWithCancellationAsync"));
 
+						// Preserve trailing trivia from the original invocation
+						var newArgs = tokenArgs.WithTrailingTrivia(oldInvocation.ArgumentList.GetTrailingTrivia());
+						
 						var newInvocation = oldInvocation.WithExpression(newAccess)
-							.WithArgumentList(tokenArgs);
+							.WithArgumentList(newArgs);
 
 						var newRoot = root.ReplaceNode(oldInvocation, newInvocation);
 						return Task.FromResult(context.Document.WithSyntaxRoot(newRoot));
