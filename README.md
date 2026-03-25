@@ -18,6 +18,11 @@ ServiceKit.Analyzers provides compile-time validation of dependency injection pa
 - Proper cancellation token usage in async injection chains
 - Consistent coding patterns across your ServiceKit implementation
 
+## Support
+If you like my work then please consider showing your support by buying me a brew
+<br><br>
+<a href="https://www.buymeacoffee.com/nonatomic" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-green.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+
 ## Analyzers and Code Fixers
 
 ### SK001: Injected Member Must Be Interface
