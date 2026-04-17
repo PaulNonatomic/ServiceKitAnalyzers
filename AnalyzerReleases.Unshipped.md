@@ -1,1 +1,1 @@
-﻿# Unshipped Analyzer Releases
+; No unshipped changes
