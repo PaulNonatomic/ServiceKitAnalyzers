@@ -1,6 +1,19 @@
-﻿# Analyzer Releases
+## Release 0.3.0
 
-## 0.2.0
+### New Rules
+- **SK003**: Service attribute declares unimplemented type
+  _Category:_ ServiceKit.Usage • _Severity:_ Error
+  _Triggers on:_ `[Service(typeof(IFoo))]` on a class that does not implement `IFoo`.
+  _Code fix:_ Add the missing interface to the class's base list.
+
+- **SK005**: ServiceKitBehaviour.Awake override must call base.Awake()
+  _Category:_ ServiceKit.Usage • _Severity:_ Error
+  _Triggers on:_ A `ServiceKitBehaviour` subclass that overrides `Awake()` without calling `base.Awake()`.
+  _Code fix:_ Insert `base.Awake();` as the first statement in the method body.
+
+---
+
+## Release 0.2.0
 ### New Rules
 - **SK002**: Injected field should be private, non-static, non-readonly, and not `[SerializeField]`  
   _Category:_ ServiceKit.Usage • _Severity:_ Warning  
@@ -21,6 +34,6 @@
 
 ---
 
-## 0.1.0
+## Release 0.1.0
 ### New Rules
 - **SK001**: Injected member should be an interface
