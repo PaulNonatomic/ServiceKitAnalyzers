@@ -1,3 +1,16 @@
+## Release 2.1.0
+
+### New Rules
+- **SK006**: Service attribute on abstract class has no effect
+  _Category:_ ServiceKit.Usage • _Severity:_ Warning
+  _Triggers on:_ `[Service(...)]` on an `abstract class` (the attribute is `Inherited = false` and abstract classes are never instantiated, so it registers nothing).
+  _Code fix:_ Remove the ineffective attribute; place `[Service(typeof(...))]` on each concrete subclass instead.
+
+### Changed Rules
+- **SK004** / **SK010**: now recognise the V2 `Inject(target)` entry point in addition to the obsolete `InjectServicesAsync(target)`, so the cancellation diagnostics apply to current-style injection chains.
+
+---
+
 ## Release 0.3.0
 
 ### New Rules
