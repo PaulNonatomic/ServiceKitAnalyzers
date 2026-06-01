@@ -57,20 +57,24 @@ namespace ServiceKit.Analyzers
 			while (cursor is InvocationExpressionSyntax inv && inv.Expression is MemberAccessExpressionSyntax ma)
 			{
 				var name = ma.Name.Identifier.ValueText;
-				if (name == "InjectServicesAsync") started = true;
+				if (IsInjectEntryPoint(name)) started = true;
 				if (name == "WithCancellation") hasCancel = true;
 				cursor = ma.Expression;
 			}
 
-			// Handle minimal chain: _loc.InjectServicesAsync(...).ExecuteAsync()
+			// Handle minimal chain: _loc.Inject(...).ExecuteAsync()
 			if (!started && cursor is InvocationExpressionSyntax rootInv &&
 				rootInv.Expression is MemberAccessExpressionSyntax rootMa &&
-				rootMa.Name.Identifier.ValueText == "InjectServicesAsync")
+				IsInjectEntryPoint(rootMa.Name.Identifier.ValueText))
 			{
 				started = true;
 			}
 
 			return (started, hasCancel);
 		}
+
+		// V2 prefers Inject(target); InjectServicesAsync(target) is the obsolete alias.
+		private static bool IsInjectEntryPoint(string name) =>
+			name == "Inject" || name == "InjectServicesAsync";
 	}
 }

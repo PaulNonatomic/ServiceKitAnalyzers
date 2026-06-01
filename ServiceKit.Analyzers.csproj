@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <PackageId>ServiceKit.Analyzers</PackageId>
+        <Version>2.1.0</Version>
         <Authors>Your Name</Authors>
         <Description>Roslyn analyzers for ServiceKit Unity package</Description>
         <PackageTags>roslyn;analyzer;unity;servicekit</PackageTags>
@@ -27,6 +28,11 @@
 
     <ItemGroup>
       <Content Include="obj\.editorconfig" />
+    </ItemGroup>
+
+    <!-- The test project lives under Tests/ and must not be compiled into the analyzer assembly. -->
+    <ItemGroup>
+      <Compile Remove="Tests\**\*.cs" />
     </ItemGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Debug'">

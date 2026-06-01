@@ -87,18 +87,20 @@ Ensures that async injection chains specify a destroy cancellation token to prop
 #### Example
 ```csharp
 // ❌ Bad - Missing cancellation token
-await _locator.InjectServicesAsync(gameObject)
+await _locator.Inject(this)
     .ExecuteAsync();
 
 // ✅ Good - With cancellation token
-await _locator.InjectServicesAsync(gameObject)
+await _locator.Inject(this)
     .WithCancellation(destroyCancellationToken)
     .ExecuteAsync();
 
 // ✅ Also good - Using convenience method
-await _locator.InjectServicesAsync(gameObject)
+await _locator.Inject(this)
     .ExecuteWithCancellationAsync(destroyCancellationToken);
 ```
+
+> Both the V2 `Inject(target)` entry point and the obsolete `InjectServicesAsync(target)` alias are detected.
 
 #### Code Fixer
 Offers two fixes:
@@ -118,17 +120,43 @@ Suggests using the convenience method `ExecuteWithCancellationAsync` instead of 
 #### Example
 ```csharp
 // ⚠️ Works but verbose
-await _locator.InjectServicesAsync(gameObject)
+await _locator.Inject(this)
     .WithCancellation(destroyCancellationToken)
     .ExecuteAsync();
 
 // ✅ Preferred - Cleaner syntax
-await _locator.InjectServicesAsync(gameObject)
+await _locator.Inject(this)
     .ExecuteWithCancellationAsync(destroyCancellationToken);
 ```
 
 #### Code Fixer
 Automatically refactors the code to use the convenience method, removing the `.WithCancellation()` call and replacing `.ExecuteAsync()` with `.ExecuteWithCancellationAsync()`.
+
+### SK006: Service Attribute On Abstract Class
+
+**Severity:** Warning  
+**Category:** ServiceKit.Usage
+
+#### Description
+`[Service]` is declared with `Inherited = false`, and an abstract class is never instantiated, so `[Service]` on an abstract base never registers anything — `ServiceKitBehaviour` reads the attribute from the concrete instance's own type and will not see one on a base class. This is an easy trap when migrating the V1 generic `ServiceKitBehaviour<T>` base-class pattern to V2, since the generic type argument *was* inherited but the attribute is not.
+
+#### Example
+```csharp
+// ⚠️ Has no effect — concrete subclasses do not inherit [Service]
+[Service(typeof(ICurtainController))]
+public abstract class BaseCurtainController : ServiceKitBehaviour, ICurtainController { }
+
+public class CurtainController2D : BaseCurtainController { } // registers as CurtainController2D, not ICurtainController
+
+// ✅ Put [Service] on each concrete subclass that ServiceKit instantiates
+public abstract class BaseCurtainController : ServiceKitBehaviour, ICurtainController { }
+
+[Service(typeof(ICurtainController))]
+public class CurtainController2D : BaseCurtainController { }
+```
+
+#### Code Fixer
+Removes the ineffective `[Service]` attribute from the abstract class. Add `[Service(typeof(...))]` to each concrete subclass that should register as the service.
 
 ## Building ServiceKit.Analyzers
 
