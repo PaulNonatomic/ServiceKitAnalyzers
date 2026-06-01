@@ -87,18 +87,20 @@ Ensures that async injection chains specify a destroy cancellation token to prop
 #### Example
 ```csharp
 // ❌ Bad - Missing cancellation token
-await _locator.InjectServicesAsync(gameObject)
+await _locator.Inject(this)
     .ExecuteAsync();
 
 // ✅ Good - With cancellation token
-await _locator.InjectServicesAsync(gameObject)
+await _locator.Inject(this)
     .WithCancellation(destroyCancellationToken)
     .ExecuteAsync();
 
 // ✅ Also good - Using convenience method
-await _locator.InjectServicesAsync(gameObject)
+await _locator.Inject(this)
     .ExecuteWithCancellationAsync(destroyCancellationToken);
 ```
+
+> Both the V2 `Inject(target)` entry point and the obsolete `InjectServicesAsync(target)` alias are detected.
 
 #### Code Fixer
 Offers two fixes:
@@ -118,12 +120,12 @@ Suggests using the convenience method `ExecuteWithCancellationAsync` instead of 
 #### Example
 ```csharp
 // ⚠️ Works but verbose
-await _locator.InjectServicesAsync(gameObject)
+await _locator.Inject(this)
     .WithCancellation(destroyCancellationToken)
     .ExecuteAsync();
 
 // ✅ Preferred - Cleaner syntax
-await _locator.InjectServicesAsync(gameObject)
+await _locator.Inject(this)
     .ExecuteWithCancellationAsync(destroyCancellationToken);
 ```
 

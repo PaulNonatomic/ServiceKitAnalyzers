@@ -29,6 +29,11 @@
       <Content Include="obj\.editorconfig" />
     </ItemGroup>
 
+    <!-- The test project lives under Tests/ and must not be compiled into the analyzer assembly. -->
+    <ItemGroup>
+      <Compile Remove="Tests\**\*.cs" />
+    </ItemGroup>
+
     <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
         <DefineConstants>DEBUG;TRACE</DefineConstants>
         <Optimize>false</Optimize>

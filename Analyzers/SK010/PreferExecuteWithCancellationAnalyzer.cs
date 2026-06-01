@@ -49,7 +49,7 @@ namespace ServiceKit.Analyzers
 			{
 				var name = ma.Name.Identifier.ValueText;
 				if (name == "WithCancellation") hasWithCancellation = true;
-				if (name == "InjectServicesAsync") startedWithInject = true;
+				if (IsInjectEntryPoint(name)) startedWithInject = true;
 				cursor = ma.Expression;
 			}
 
@@ -57,7 +57,7 @@ namespace ServiceKit.Analyzers
 			{
 				if (cursor is InvocationExpressionSyntax rootInv &&
 					rootInv.Expression is MemberAccessExpressionSyntax rootMa &&
-					rootMa.Name.Identifier.ValueText == "InjectServicesAsync")
+					IsInjectEntryPoint(rootMa.Name.Identifier.ValueText))
 				{
 					startedWithInject = true;
 				}
@@ -68,5 +68,9 @@ namespace ServiceKit.Analyzers
 				ctx.ReportDiagnostic(Diagnostic.Create(_rule, executeAccess.Name.Identifier.GetLocation()));
 			}
 		}
+
+		// V2 prefers Inject(target); InjectServicesAsync(target) is the obsolete alias.
+		private static bool IsInjectEntryPoint(string name) =>
+			name == "Inject" || name == "InjectServicesAsync";
 	}
 }
